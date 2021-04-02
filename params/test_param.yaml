@@ -1,0 +1,4 @@
+rosbag_converter_node:
+  ros__parameters:
+    path_in_ros2_serialized_binary: "/home/mfc/bags/038/038.serialized_data_for_bags"
+    path_out_ros2_bag: "/home/mfc/bags/038/038"

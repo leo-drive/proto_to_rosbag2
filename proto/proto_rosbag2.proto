@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package rosbag_converter_proto;
+
+message ProtoRosBag2 {
+
+  message ProtoRosBag2Message {
+    string topic_name = 1;
+    string topic_type_name = 2;
+    uint64 time_stamp = 3;
+    bytes serialized_data = 4;
+  }
+  
+  repeated ProtoRosBag2Message messages = 1;
+  
+}
