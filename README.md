@@ -71,7 +71,8 @@ Edit this file with your directories:
     path_in_ros2_serialized_binary: "/home/mfc/bags/038/038.proto_rosbag2" # This is the output of ros1bridge_ws's package.
     path_out_ros2_bag: "/home/mfc/bags/038/038" # Last word here becomes the folder that contains the 038.db3 and metadata.yaml, 
     # So be careful when naming it. It will remove this directory before writing.
-
+```
+```bash
 cd ~/rosbag_converter_proto_ws
 source ~/rosbag_converter_proto_ws/install/setup.bash
 ros2 run proto_to_rosbag2 proto_to_rosbag2_node --ros-args --params-file ~/rosbag_converter_proto_ws/src/proto_to_rosbag2/params/test_param.yaml
