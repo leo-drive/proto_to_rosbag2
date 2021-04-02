@@ -2,7 +2,7 @@
 Converts the temporary proto_rosbag2 file to rosbag2 file.
 
 # IMPORTANT
-In order to get .proto_rosbag2 file from a rosbag1 file, follow instructions at: https://github.com/leo-drive/ros1_bridge/tree/rosbag_converter
+In order to get `.proto_rosbag2` file from a rosbag1 file, follow instructions at: https://github.com/leo-drive/ros1_bridge/tree/rosbag_converter
 
 ## Build Instructions
 ```bash
