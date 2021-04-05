@@ -55,19 +55,20 @@ RosbagConverterNode::RosbagConverterNode(const rclcpp::NodeOptions & options)
 
     bag_message->topic_name = proto_message.topic_name();
     bag_message->time_stamp = proto_message.time_stamp();
-    std::vector<uint8_t> bytes_copy(proto_message.serialized_data().begin(), proto_message.serialized_data().end());
+    std::vector<uint8_t> bytes_copy(
+      proto_message.serialized_data().begin(), proto_message.serialized_data().end());
 
     rmw_serialized_message_t serialized_message = rmw_get_zero_initialized_serialized_message();
 
     rcutils_allocator_t default_allocator = rcutils_get_default_allocator();
-    rmw_serialized_message_init(&serialized_message,bytes_copy.size(),&default_allocator);
+    rmw_serialized_message_init(&serialized_message, bytes_copy.size(), &default_allocator);
     rmw_serialized_message_resize(&serialized_message, bytes_copy.size());
 
     std::memcpy(serialized_message.buffer, bytes_copy.data(), bytes_copy.size());
     serialized_message.buffer_length = bytes_copy.size();
 
     bag_message->serialized_data = std::shared_ptr<rcutils_uint8_array_t>(
-        &serialized_message, [](rcutils_uint8_array_t * /* data */) {});
+      &serialized_message, [](rcutils_uint8_array_t * /* data */) {});
 
     writer.write(bag_message, bag_message->topic_name, proto_message.topic_type_name());
     rmw_serialized_message_fini(&serialized_message);

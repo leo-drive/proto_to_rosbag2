@@ -8,5 +8,4 @@ public:
   explicit RosbagConverterNode(const rclcpp::NodeOptions & options);
 
 private:
-
 };
