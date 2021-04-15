@@ -29,49 +29,64 @@ RosbagConverterNode::RosbagConverterNode(const rclcpp::NodeOptions & options)
 
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-  rosbag_converter_proto::ProtoRosBag2 proto_rosbag_2;
-
-  {
-    // Read serialized bag file
-    std::fstream input(path_in, std::ios::in | std::ios::binary);
-    if (!input) {
-      RCLCPP_ERROR_STREAM(this->get_logger(), path_in << ": File not found.");
-      return;
-    } else if (!proto_rosbag_2.ParseFromIstream(&input)) {
-      RCLCPP_ERROR_STREAM(
-        this->get_logger(),
-        path_in << "Failed to parse serialized_data_for_bags.");
-      return;
-    }
-  }
-
-
   rcpputils::fs::remove_all(path_out);
   rosbag2_cpp::Writer writer;
   writer.open(path_out);
+  int count_read_proto_files = 0;
+  bool there_are_files_to_read = true;
+  while (there_are_files_to_read) {
 
-  for (const auto & proto_message : proto_rosbag_2.messages()) {
-    auto bag_message = std::make_shared<rosbag2_storage::SerializedBagMessage>();
+    rosbag_converter_proto::ProtoRosBag2 proto_rosbag_2;
 
-    bag_message->topic_name = proto_message.topic_name();
-    bag_message->time_stamp = proto_message.time_stamp();
-    std::vector<uint8_t> bytes_copy(
-      proto_message.serialized_data().begin(), proto_message.serialized_data().end());
+    {
+      // Read serialized bag file
+      // Read like file_name.proto_rosbag2_000, file_name.proto_rosbag2_001, ...
+      std::string str_count_raw = std::to_string(count_read_proto_files);
+      std::string str_count_with_leading_zeros = "_" +
+        std::string(3 - str_count_raw.length(), '0') + str_count_raw;
+      std::string str_file_name = path_in + str_count_with_leading_zeros;
+      std::fstream input(str_file_name, std::ios::in | std::ios::binary);
+      RCLCPP_INFO_STREAM(this->get_logger(), "Reading file: " + str_file_name);
+      if (!input) {
+        if(count_read_proto_files > 0){
+          RCLCPP_INFO_STREAM(this->get_logger(), str_file_name << ": File not found. But that's probably all, finished.");
+          return;
+        }
+        RCLCPP_ERROR_STREAM(this->get_logger(), str_file_name << ": File not found.");
+        return;
+      } else if (!proto_rosbag_2.ParseFromIstream(&input)) {
+        RCLCPP_ERROR_STREAM(
+          this->get_logger(),
+          str_file_name << "Failed to parse serialized_data_for_bags.");
+        there_are_files_to_read = false;
+        break;
+      }
+      count_read_proto_files++;
+    }
 
-    rmw_serialized_message_t serialized_message = rmw_get_zero_initialized_serialized_message();
+    for (const auto & proto_message : proto_rosbag_2.messages()) {
+      auto bag_message = std::make_shared<rosbag2_storage::SerializedBagMessage>();
 
-    rcutils_allocator_t default_allocator = rcutils_get_default_allocator();
-    rmw_serialized_message_init(&serialized_message, bytes_copy.size(), &default_allocator);
-    rmw_serialized_message_resize(&serialized_message, bytes_copy.size());
+      bag_message->topic_name = proto_message.topic_name();
+      bag_message->time_stamp = proto_message.time_stamp();
+      std::vector<uint8_t> bytes_copy(
+        proto_message.serialized_data().begin(), proto_message.serialized_data().end());
 
-    std::memcpy(serialized_message.buffer, bytes_copy.data(), bytes_copy.size());
-    serialized_message.buffer_length = bytes_copy.size();
+      rmw_serialized_message_t serialized_message = rmw_get_zero_initialized_serialized_message();
 
-    bag_message->serialized_data = std::shared_ptr<rcutils_uint8_array_t>(
-      &serialized_message, [](rcutils_uint8_array_t * /* data */) {});
+      rcutils_allocator_t default_allocator = rcutils_get_default_allocator();
+      rmw_serialized_message_init(&serialized_message, bytes_copy.size(), &default_allocator);
+      rmw_serialized_message_resize(&serialized_message, bytes_copy.size());
 
-    writer.write(bag_message, bag_message->topic_name, proto_message.topic_type_name());
-    rmw_serialized_message_fini(&serialized_message);
+      std::memcpy(serialized_message.buffer, bytes_copy.data(), bytes_copy.size());
+      serialized_message.buffer_length = bytes_copy.size();
+
+      bag_message->serialized_data = std::shared_ptr<rcutils_uint8_array_t>(
+        &serialized_message, [](rcutils_uint8_array_t * /* data */) {});
+
+      writer.write(bag_message, bag_message->topic_name, proto_message.topic_type_name());
+      rmw_serialized_message_fini(&serialized_message);
+    }
   }
 
 }

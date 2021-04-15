@@ -68,7 +68,10 @@ colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -D
 Edit this file with your directories:
 ~/rosbag_converter_proto_ws/src/proto_to_rosbag2/params/test_param.yaml
 # defaults:
-    path_in_ros2_serialized_binary: "/home/mfc/bags/038/038.proto_rosbag2" # This is the output of ros1bridge_ws's package.
+    path_in_ros2_serialized_binary: "/home/mfc/bags/038/038.proto_rosbag2" # This is the output of ros1bridge_ws's package. 
+    # The saved file names will be with ".proto_rosbag2_000, .proto_rosbag2_001, ..." extensions. With max 1GB file sizes.
+    # But you don't need to worry about the numbers in the end.
+    
     path_out_ros2_bag: "/home/mfc/bags/038/038" # Last word here becomes the folder that contains the 038.db3 and metadata.yaml, 
     # So be careful when naming it. It will remove this directory before writing.
 ```
