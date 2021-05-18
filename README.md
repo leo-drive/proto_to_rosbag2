@@ -59,7 +59,10 @@ cd ~/rosbag_converter_proto_ws/src
 git clone https://github.com/leo-drive/proto_to_rosbag2.git
 cd ~/rosbag_converter_proto_ws
 
-# Build
+# Build the entire thing once
+colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+
+# If you make changes to the package in the future, you can run following instead of everything:
 colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --packages-up-to proto_to_rosbag2
 ```
 
