@@ -6,64 +6,14 @@ In order to get `.proto_rosbag2` file from a rosbag1 file, follow instructions a
 
 ## Build Instructions
 ```bash
-
-# Some info will be taken from https://docs.ros.org/en/rolling/Installation/Linux-Development-Setup.html
-
-# These are rolling dependencies, more recent instructions will be in the website above
-sudo apt update && sudo apt install curl gnupg2 lsb-release
-curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
-
-sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
-
-sudo apt update && sudo apt install -y \
-  build-essential \
-  cmake \
-  git \
-  python3-colcon-common-extensions \
-  python3-flake8 \
-  python3-pip \
-  python3-pytest-cov \
-  python3-rosdep \
-  python3-setuptools \
-  python3-vcstool \
-  wget
-  
-# install some pip packages needed for testing
-python3 -m pip install -U \
-  flake8-blind-except \
-  flake8-builtins \
-  flake8-class-newline \
-  flake8-comprehensions \
-  flake8-deprecated \
-  flake8-docstrings \
-  flake8-import-order \
-  flake8-quotes \
-  pytest-repeat \
-  pytest-rerunfailures \
-  pytest \
-  setuptools
-
-# Here we create the workspace and download the Rolling repos in it
 mkdir -p ~/rosbag_converter_proto_ws/src
-cd ~/rosbag_converter_proto_ws
-
-wget https://raw.githubusercontent.com/ros2/ros2/master/ros2.repos
-vcs import src < ros2.repos
-
-sudo rosdep init
-rosdep update
-rosdep install --from-paths src --ignore-src --rosdistro rolling -y --skip-keys "console_bridge fastcdr fastrtps rti-connext-dds-5.3.1 urdfdom_headers"
-
-# Now this package should be cloned in it
 cd ~/rosbag_converter_proto_ws/src
 git clone https://github.com/leo-drive/proto_to_rosbag2.git
 cd ~/rosbag_converter_proto_ws
 
-# Build the entire thing once
-colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+source /opt/ros/galactic/setup.bash
 
-# If you make changes to the package in the future, you can run following instead of everything:
-colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --packages-up-to proto_to_rosbag2
+colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 ```
 
 ## Run Instructions
